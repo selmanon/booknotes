@@ -1,0 +1,96 @@
+Reactive programming with RxJava
+Chapter 1 :
+
+Chapter 4 : Applying RP to existing Applications   
+1. Intro
+* Brings benefits to legacy platforms
+* RxJava can be introduced at any layer (without breaking an application as a whole)
+
+2. From Collections to Observables
+* List<Person> listPeople() —>  Observable<Person> listPeople()
+
+3. BlockingObservable: Exiting the Reactive World
+* If combining RxJava with existing, blocking and imperative code => need to translate Observable to a plain collection
+* BlockingObservable : Observable.toBlocking() : will block until all events are processed and stream is completed
+* Observable.forEach() will asynchronously receive events from Observable as they come in
+* Also exceptions are no longer propagated as values (events) but instead are rethrown in the calling thread.
+Code : (need a double check) Observable<Person> peopleStream = personDao.listPeople();
+Observable<List<Person>> peopleList = peopleStream.toList();
+BlockingObservable<List<Person>> peopleBlocking = peopleList.toBlocking();
+List<Person> people = peopleBlocking.single();
+4. Embracing Laziness
+- RxJava will load them only when they are absolutely needed.
+- try-catch in rxjava :
+void bestBookFor(Person person) {
+    recommend(person)
+            .onErrorResumeNext(bestSeller())
+            .map(Book::getTitle)
+            .subscribe(this::display);
+}
+
+5. Composing Observables
+* concatWith -> lazily loading data chunk by chunk is quite useful
+
+6. Lazy paging and concatenation
+* paged data : load everything and then take whatever we need
+* example must be implemented
+7. Imperative Concurrency
+* A single request is handled by a single thread.
+* zip :  when both ob1 and ob2 are done
+* zip :  A way to asynchronously wait for two or more values, no matter which one appears last.
+8. flatMap() as Asynchronous Chaining Operator
+* Subscription and thus iteration and sending emails is postponed until single() is invoked. 
+* If we replace the outer flatMap() with concatMap() we will encounter a similar bug as the mentioned with JDK’s Stream.
+* Stream.flatMap() allows us to return zero or one elements (or actually any number), contrary to Stream.map(), which always requires one.
+* Important : if an error is raised from in inner stream in case there is no flatMap the entire stream terminate
+* ignoreElements() Apparently allow only to focus on errors
+Observables are synchronous by default
+* you should postpone subscribing to an Observable as late as possible
+
+9. Replacing Callbacks with Streams
+- The easiest way to convert from a push, callback-based API to Observable is to use Subjects
+- Every time a new JMS message is delivered, we push that message to a PublishSubject that looks like an ordinary hot Observable from the outside:
+- Keep in mind that Observable<Message> is hot
+- ReplaySubject : cashes all event since the application startup (not suitable for long-running processes)
+- PublishSubject : emit events since the subscription.
+Subject are hot by default (to check)
+- cast(TextMssage) is equivalent to map(x -> (TextMessage)x)
+10. Polling Periodically for Changes
+- To drop duplication we use distinct and distinctUntilChange
+- 
+11. Multithreading in RxJava
+- One of the hallmarks of RxJava is declarative concurrency (as opposed to imperative concurrency) Manually creating and managing threads is a thing of the past
+- Observable can be nonblocking + lazy (Unless you subscribe, a well-behaving Observable will not perform any action. But the power of Observable goes even beyond that)
+- By default (with Observable.create()) everything happens in the client thread (the one that subscribed).
+- If you just poke onNext() directly within your create() callback, no multithreading and concurrency is involved whatsoever.
+- 
+12. What Is a Scheduler?
+- 
+13. SCHEDULER IMPLEMENTATION DETAILS OVERVIEW (optional)
+- 
+14. Declarative Subscription with subscribeOn() (here I am)
+- task executed y two different thread aren’t predictable because two threads are running concurrently:
+- Observable is lazy but also immutable, in the sense that subscribeOn() affects only downstream subscribers, if someone subscribes to the exact same Observable without subscribeOn() in between, no concurrency will be involved by default.
+- Netflix , subscribeOn() is almost never used, yet all Observables are asynchronous
+15. subscribeOn() Concurrency and Behavior
+- subscribeOn() closest to the original Observable wins ===>  If you are designing an API and you use subscribeOn() internally, the client code has no way of overriding the Scheduler of your choice. ====> after all, the API designer might know best which Scheduler is appropriate
+- The position of subscribeOn() is not relevant, it can be right after Observable or just before subscribe()
+- flatMap() and merge() are the operators when we want to achieve true parallelism
+- The code does not work concurrently because there is just a single flow of events, which by design must run sequentially
+- The flatMap() operator is carefully designed and implemented so that it collects all events from all independent streams and pushes them downstream sequentially
+- Observable - Scheduler = Single-thread (with blocking method calls passing data between them)
+- Observable - One-SubscribeOn  = Big sequential task  in the background Thread 
+- flatMap() allow the implementation of fork-join strategy
+- difference between merge() and concat() : merge() on two streams will subscribe to both of them concurrently, whereas the concat() operator waits until the first stream finishes before it subscribes to the second one.
+16. Batching Requests Using groupBy()
+- Believe it or not, concurrency in RxJava can be described by two operators: the aformentioned subscribeOn() and observeOn()
+- subscribeOn() allows choosing which Scheduler will be used to invoke OnSubscribe (lambda expression inside create()).
+13. Declarative Concurrency with observeOn()
+14. Other Uses for Schedulers
+- There are numerous operators that by default use some Scheduler
+- Typically, Schedulers.computation() is used if none is supplied
+- interval(), range(), timer(), repeat(), skip(), take(), timeout(), use computation() Scheduler
+- We must be sure that Schedulers used downstream can keep up with the load generated by Schedulers upstream.
+Summary
+- RxJava offer their client laziness, declarative concurrency and asynchronous chaining. 
+- 
