@@ -1,0 +1,126 @@
+Clean Code
+
+Wisdom : LeBlanc’s law: Later equals never.
+
+13/12/2016 :   Bad Code - PDF 33 - P3
+The Total Cost of Owning a Mess 
+                         Avoid Encodings 
+Small! P34
+Common Monadic Forms
+Output Arguments - P45
+Structured Programming - P48
+Comments - P54
+Mumbling - P59
+The Newspaper Metaphor - P77 
+ Define Exception Classes in Terms of a Caller’s Needs - P107
+     Unit Test - P122
+Clean Tests - P124
+Single Concept per Test - P131
+Isolating from Change - P147
+Scaling Up - 157
+Myths and Misconceptions - 179
+Writing Correct Shut-Down Code Is Hard - 186
+Conclusion - 190
+First, make it work - 269
+Then Make It Right - 270
+Then Make It Right - 282
+  
+——————————————
+To review:
+ 
+- Law of Demeter 
+ 
+------------------------------
+ “one word per concept” is ok but sometimes you need to add Meaningful Context to avoid pun
+ "clarity is king”
+"FUNCTIONS SHOULD DO ONE THING. THEY SHOULD DO IT WELL. THEY SHOULD DO IT ONLY."
+ “Truth can only be found in one place: the code” // comments
+ 
+"Rather than spend your time writing the comments that explain the mess you’ve made, spend it cleaning that mess.” // comments
+"Hiding implementation is about abstractions!” -> Hiding implementation is not just a matter of putting a layer of functions between the variables.
+ “If ctxt is an object, we should be telling it to do something; we should not be asking it about its internals” // hiding structure
+“The learning tests : before using third party library we make some testing for it”  // The learning tests were precise experiments that helped increase our understanding.
+“Test code is just as important as production code” // It requires thought, design, and care. It must be kept as clean as production code.
+ 
+ 
+"It is unit tests that keep our code flexible, maintainable, and reusable"
+ “without tests you will be reluctant to make changes because of the fear that you will introduce undetected bugs.”
+“Tests enable all the -ilities, because tests enable change.”
+“With functions we measured size by counting physical lines. With classes we use a different measure. We count responsibilities.1”
+“The name of a class should describe what responsibilities it fulfils"
+“the more variables a method manipulates the more cohesive that method is to its class.”
+“Complexity kills. It sucks the life out of developers, it makes products difficult to plan, build, and test.” - Ray Ozzie, CTO, Microsoft
+ “Software systems should separate the startup process, when the application objects are constructed and the dependencies are “wired” together, from the runtime logic that takes over after startup.”
+“ Tests eliminates the fear that cleaning up the code will break it”
+“Refactoring lead to increase cohesion, decrease coupling, separate con-cerns, modularize system concerns, shrink our functions and classes, choose better names, and so on. This is also where we apply the final three rules of simple design: Eliminate duplication, ensure expressiveness, and minimize the number of classes and methods”
+ 
+"According to Kent, a design is “simple” if it follows these rules: Runs all the tests, No duplication, Expressive (Expresses the intent of the programmer), Minimizes the number of classes and methods
+“Duplication is the primary enemy of a well-designed system”
+“Care is a precious resource.” (care about your code)
+“Objects are abstractions of processing. Threads are abstractions of schedule.”
+“If we have learned anything over the last couple of decades, it is that programming is a craft more than it is a science."
+“To write clean code, you must first write dirty code and then clean it.”
+“Writing clean compositions, they tried to tell us, is a matter of successive refinement.”
+“So I stopped adding features and started refactoring.”
+ 
+"One of the central doctrines of this approach (TDD) is to keep the system running at all times."
+  
+Common Monadic Forms (single argument function)
+ 
+* Asking a question about that argument : 
+ 
+boolean fileExists(“MyFile”)
+* Transforming it(argument) into something else and returning it
+
+InputStream fileOpen(“MyFile”)
+
+* Event  : interpret the function call as an event
+void passwordAttemptFailedNtimes(int attempts) 
+ 
+Flag Arguments (ugly)
+render(boolean isSuite) -> renderForSuite() and renderForSingleTest().
+  
+Dyadic Functions
+ 
+ 
+
+ 
+
+ 
+* Point p = new Point(0,0)        -> are ordered components of a single value:  OK
+* writeField(output-Stream, name) -> aren't ordered components of a single value:  NOK
+ 
+ 
+Have No Side Effects
+ checkPassword function that contain a call to Session.initialize()  
+Output Arguments
+should be avoided -> if a function must change the state of something, it must be to object state of its owning object
+ 
+Command Query Separation
+* Function should :
+    * do something -> change the object state
+        * OR
+    * answer something -> return some information about the object
+OK -> separate the command from the query
+if (attributeExists("username")) { 
+setAttribute("username", "unclebob"); ...
+}
+NOK
+ 
+if (set("username", "unclebob"))...
+Prefer Exceptions to Returning Error Codes
+ 
+Explain Yourself in Code
+ 
+// Check to see if the employee is eligible for full benefits
+if ((employee.flags & HOURLY_FLAG) && 
+(employee.age > 65))
+Or this?
+if (employee.isEligibleForFullBenefits())
+ 
+ Template Methode  
+check page 174/175
+ 
+
+ 
+ 
