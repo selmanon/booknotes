@@ -1,0 +1,230 @@
+Growing Object-Oriented Software guided by tests
+ “command” and “query” instead of “state-changing” and “non-state-changing”. 
+Part I: Introduction ......................................................................................... 
+Chapter 1: What Is the Point of Test-Driven Development? ..................... 
+* Software Development as a Learning Process ..................................... 
+* Feedback Is the Fundamental Tool .................................................... 
+    * The sooner we can get feedback about any aspect of the project, the better.
+    * Constant testing to catch regression errors, so we can add new features without breaking existing ones
+    * Two technical foundations if we want to grow a system reliably
+        * Test
+        * Simple code —> Constantly refactor 
+    * TDD give us feedback on the quality of both
+        *  Implementation (“Does it work?”)
+        * Design (“Is it well structured?”).
+    * The Golden Rule of Test-Driven Development : Never write new functionality without a failing test.
+    * Refactoring =/= redesign
+* Practices That Support Change .......................................................... 
+* Test-Driven Development in a Nutshell ............................................. 
+* The Bigger Picture ............................................................................. 
+    * Acceptance test : exercises the functionality we want to build
+    * Acceptance test = Set of Unit Tests
+    * Failing unit tests should never be committed to the source repository.
+* Testing End-to-End ............................................................................ 
+    * Acceptance test should exercise the system end-to-end
+    * end-to-end test interacts with the system only from the outside: through its user interface
+        * by sending messages as if from third-party systems
+        * by invoking its web services
+        * by parsing reports, and so on
+    * end-to-end tests exercise both the system and the process by which it’s built and deployed.
+        * check out the latest version; 
+        * compile and unit-test the code; 
+        * integrate and package the system; 
+        * perform a production-like deployment into a realistic environment; and, 
+        * finally, exercise the system through its external access points. 
+    * end-to-end build cycle is an ideal candidate for automation
+    * A system is deployable when the acceptance tests all pass
+* Levels of Testing ................................................................................ 
+    * Acceptance : Does the whole system work?
+    * Integration : Does our code work against code we can't change?
+    * Unit : Do our objects do the right thing, are they convenient to work with?
+    * Acceptance tests:
+        *  “functional tests,” “customer tests,” “system tests.”
+        * might not be end-to-end
+        * Be clear about our intentions.
+        * help us, with the domain experts, understand and agree on what we are going to build next. 
+        * haven’t broken any existing features as we continue developing
+    * Integration tests to refer to the tests that check how some of our code works with code from outside the team that we can’t change
+* External and Internal Quality .......................................................... 
+    * External quality : customers/uses satisfaction
+        * Functional
+        * Reliable
+        * Available
+        * Responsive
+    * Internal quality : developers/administrators needs
+        * Easy to understand
+        * Easy to change
+    * Running end-to-end tests tells us about the external quality of our system
+    * End-to-end tests don’t tell us how well we’ve written the code.
+    * Writing unit tests gives us a lot of feedback about the quality of our code
+
+Chapter 2: Test-Driven Development with Objects ................................
+* A Web of Objects ............................................................................ 
+* Values and Objects .......................................................................... 
+    * Values are immutable instances that model fixed quantities. 
+    * Objects use mutable state to model their behavior over time 
+* Follow the Messages ........................................................................ 
+    * In languages like Java, we identify object roles with (abstract) interfaces, rather than (concrete) classes—although interfaces don’t define everything we need to say. 
+* Tell, Don’t Ask  ——> master.allowSavingOfCustomisations
+    * Tell, Don’t Ask = Law of Demeter
+    * How
+		((EditSaveCustomizer) master.getModelisable() .getDockablePanel() 
+		.getCustomizer()) .getSaveItem().setEnabled(Boolean.FALSE.booleanValue()); 
+    * what 
+		master.allowSavingOfCustomisations(); 
+* But Sometimes Ask ........................................ collection.getProduct(id)
+    * We “ask” when getting information from values and collections, or when using a factory to create new objects 
+    * 
+* Unit-Testing the Collaborating Objects ........................................... 
+* Support for TDD with Mock Objects .............................................. 
+    * The essential structure of a test is 
+        * Create any required mock objects. 
+        * Create any real objects, including the target object. 
+        * Specify how you expect the mock objects to be called by the target object. 
+        * Call the triggering method(s) on the target object. 
+        * Assert that any resulting values are valid and that all the expected calls have been made. 
+* The unit test makes explicit the relationship between the target object and its environment 
+Chapter 3: An Introduction to the Tools ................................................ 
+* Stop Me If You’ve Heard This One Before ...................................... 
+* A Minimal Introduction to JUnit  ..................................................  
+    * Test Cases : JUnit treats any method annotated with @Test as a test case; 
+        * test methods must have neither a return value nor parameters 
+    * Assertions 
+        * AssertTrue
+        * AssertNull
+        * AssertEquals
+    * Expecting Exceptions 
+        * @Test(expected=IllegalArgumentException.class) 
+    * Test Fixtures
+        * A test fixture is the fixed state that exists at the start of a test 
+            * @Before
+            * @After
+    * Test Runners : The way JUnit reflects on a class to find tests and then runs those tests is controlled by a test runner 
+        * Configured with the @RunWith annotation.
+* Hamcrest Matchers and assertThat() ............................................... 
+    * Hamcrest is a framework for writing declarative match criteria 
+    * used by JUNIT
+    * A Hamcrest matcher reports whether a given object matches 
+        * some criteria 
+        * can describe its criteria
+        * can describe why an object does not meet its criteria. 
+* jMock2: Mock Objects .................................................................... 
+    * mock objects 
+    * jMock creates mock objects dynamically 
+Part II: The Process of Test-Driven Development 
+* Continuous incremental development
+* Expressive code
+Chapter 4: Kick-Starting the Test-Driven Cycle 
+* Introduction
+    * To avoid the “unknown unknown”  start with “build, deploy, and test”
+* First, Test a Walking Skeleton
+    * First :  work out how to build, deploy, and test a “walking skeleton,” 
+    * Second : use that infrastructure to write the acceptance tests for the first meaningful feature 
+    * Third : test-driven development of the rest of the system. 
+*  Deciding the Shape of the Walking Skeleton
+* Build Sources of Feedback
+    * Automation of building and testing give us feedback on qualities of the system  (how easily we can cut a version and deploy, how well the design works, and how good the code is)
+* Expose Uncertainty Early 
+Chapter 5: Maintaining the Test-Driven Cycle (here I m 10/12/2017 : 14:51 mille dellice)
+* Introduction 
+* Start Each Feature with an Acceptance Test .
+    * Starting with tests makes us look at the system from the users’ point of view 
+    * Unit tests
+        * exercise objects, or small clusters of objects, in isolation 
+        * Important to help us design classes and give us confidence that they work, but they don’t say anything about whether they work together with the rest of the system. 
+    * Acceptance tests both test the integration of unit-tested objects and push the project forwards 
+* Separate Tests That Measure Progress from Those That Catch Regressions (here I am)
+    * 
+* Start Testing with the Simplest Success Case
+* Write the Test That You’d Want to Read 
+* Watch the Test Fail 
+* Develop from the Inputs to the Outputs
+* Unit-Test Behavior, Not Methods 
+* Listen to the Tests 
+* Tuning the Cycle
+Chapter 6: Object-Oriented Style 
+* Introduction
+    * How to damage your system :
+        * Code difficult to understand 
+        * Introducing hidden dependencies between components 
+* Designing for Maintainability (here I’am 13/12/2017 21:40 home)
+    * As the code scales up, the only way we can continue to understand and maintain it is by structuring the functionality into objects, objects into packages, packages into programs, and programs into systems 
+    * We use two principal heuristics to guide this structuring: 
+        * Separation of concerns  : When we have to change the behavior of a system, we want to change as little code as possible. 
+        * Higher levels of abstraction : The only way for humans to deal with complexity is to avoid it, by working at higher levels of abstraction 
+* Internals vs. Peers
+* No And’s, Or’s, or But’s 
+    * Every object should have a single, clearly defined responsibility; 
+    * Our heuristic is that we should be able to describe what an object does without using any conjunctions (“and,” “or”). 
+    * If we find ourselves adding clauses to the description, then the object probably should be broken up into collaborating objects, usually one for each clause. 
+* Object Peer Stereotypes 
+    * Categorize an object’s peers (loosely) into three types of relationship 
+        * Dependencies  
+            * Services that the object requires from its peers so it can perform its responsibilities. 
+            * The object cannot function without these services 
+        * Notifications 
+            * Peers that need to be kept up to date with the object’s activity 
+            * The object will notify interested peers whenever it changes state or performs a significant action 
+            * Notifications are “fire and forget”; 
+        * Adjustments 
+            * 
+* Composite Simpler Than the Sum of Its Parts
+    * “composite simpler than the sum of its parts” rule contributes to raising the level of abstraction.  
+    * Rule of thumb : The API of a composite object should not be more complicated than that of any of its components. 
+* Context Independence (if some object need something he git through constructor or through pram in method)
+    * helps us decide whether an object hides too much or hides the wrong information. 
+    * A system is easier to change if its objects are context-independent 
+    * To be context-independent, whatever an object needs to know about the larger environment it’s running in must be passed in 
+        * “permanent” (passed in on construction) 
+        * “transient” (passed in to the method that needs them). 
+    * “paternalistic” approach, each object is told just enough to do its job and wrapped up in an abstraction that matches its vocabulary. 
+One Domain Vocabulary 
+A class that uses terms from multiple domains might be violating context independence, unless it’s part of a bridging layer. 
+* Hiding the Right Information 
+    * The best defense is to be clear about the difference between the two concepts when discussing a design 
+    * Context independence tells us that we have no business hiding details
+* An Opinionated View
+Chapter 7: Achieving Object-Oriented Design
+
+In matters of style, swim with the current; in matters of principle, stand like a rock.
+
+* How Writing a Test First Helps the Design
+    * A caller wants to know what an object does and what it depends on, but not how it works. 
+    * An object represent a coherent unit that makes sense in its larger environment. 
+    * TDD 3 helpers :
+        * ONE : “What” we want before “How“
+            * If the intention of the unit test is unclear then we’re probably mixing up concepts and not ready to start coding 
+            * Helps us with information hiding as we have to decide what needs to be visible from outside the object. 
+        * TWO : to keep unit tests understandable (and, so, maintainable), we have to limit their scope. 
+        * TREE : to construct an object for a unit test, we have to pass its dependencies to it, which means that we have to know what they are. 
+            * context independence 
+* Communication over Classification
+    * In languages such as Java, we can use interfaces to define the available messages between objects (contract)
+
+Interface and Protocol 
+Steve heard this useful distinction in a conference talk: an interface describes whether two components will fit together, while a protocol describes whether they will work together. 
+
+    * TDD with mock objects also encourages information hiding. We should mock an object’s peers—its dependencies, notifications, and adjustments we categorized but not its internals. 
+* Value Types 
+    * Three basic techniques for introducing value types 
+        * breaking out (multiple concerns ) : There’s an example in “Tidying Up the Translator” (page 135) where we break a class that handles incoming messages into two parts: one to parse the message string, and one to interpret the result of the parsing. 
+        * budding off : When we want to mark a new domain concept in the code, we often introduce a placeholder type that wraps a single field, or maybe has no fields at all. 
+        * bundling up : When we notice that a group of values are always used together, we take that as a suggestion that there’s a missing construct  —> create new type
+Breaking Out: Splitting a Large Object into a Group of Collaborating Objects 
+Budding Off: Defining a New Service That an Object Needs and Adding a New Object to Provide It 
+Bundling Up: Hiding Related Objects into a Containing Object 
+* Where Do Objects Come From? 
+* Identify Relationships with Interfaces
+    * We use interfaces to :
+        * Name the roles that objects can play
+        * Describe the messages they’ll accept. 
+    * The fewer methods there are on an interface, the more obvious is its role in the calling object 
+* Refactor Interfaces Too (here I’m)
+* Compose Objects to Describe System Behavior
+* Building Up to Higher-Level Programming
+* And What about Classes?
+Chapter 8: Building on Third-Party Code
+* Introduction
+* Only Mock Types That You Own
+* Mock Application Objects in Integration Tests
+
