@@ -1,0 +1,81 @@
+Java Generics and Collections Speed Up the Java Development Process [Naftalin & Wadler 2006-10-27].pdf 
+Chapter 2: Subtyping and Wildcards 
+2.8 Restrictions on Wildcards  
+* Wildcards may not appear at the top level in class instance creation expressions (new) 
+* relationship between wildcards and ordinary types is similar to the relationship between interfaces and classes 
+* Wildcard type is shorthand for some ordinary type —> every object should be created with an ordinary type 
+* Comparable  —> natural ordering 
+* Comparator   —> unnatural ordering. 
+
+8.2. Use checked collections to enforce security
+* The guarantees offered by generic types apply only if there are no unchecked warnings
+
+IMPORTANT : Techniques to enforce security
+	—> Checked collections
+	—> Empty loop
+	—> Specialize
+8.3. Specialize to create reifiable types
+* Parameterized types are not reifiable, but some operations, such as instance test, casting, and array creation apply only to reifiable types.
+* To make a Parameterized type reifiable create a Specialized version of the parameterized type
+    * By delegation (wrappers)
+    * By inheritance (subclassing)
+    * 
+CHAPTER 11 Preliminaries 
+11.1 Iterable and Iterators 
+* An iterator is an object that implements the interface Iterator: 
+
+public Iterator<E> { 
+	boolean hasNext(); 
+	E next(); 	void remove(); 
+}   11.2 Implementations 
+* The three main kinds of operations that most collection interfaces require are insertion and removal of elements by position, retrieval of elements by content, and iteration over the collection elements 
+—> Arrays
+* Implemented directly in hardware —> random-access memory propertie
+    * Very fast for accessing elements by position and for iterating over them
+    * Slower for inserting and removing elements at arbitrary positions 
+* Backing structure for ArrayList, CopyOnWriteArrayList, EnumSet and EnumMap, and for many of the Queue and Deque implementations 
+* Form an important part of the mechanism for implementing hash tables  
+—> Linked lists
+* Accessing elements by position is slow  
+    * because you have to follow the reference chain from the start of the list 
+* Insertion and removal operations can be performed in constant time by rearranging the cell references 
+* Backing structure for ConcurrentLinkedQueue, LinkedBlockingQueue, and LinkedList, and the new skip list collections ConcurrentSkipList Set and ConcurrentSkipListMap 
+* Form an important part of the mechanism for implementing HashSet  and LinkedHashSet 
+
+—> Hash tables
+* Provide a way of storing elements indexed on their content rather than on an integer-valued index, as with lists 
+* Access by content is usally very fast, as are insertion and removal 
+    * No support for accessing elements by position 
+* Backing structure for Set, Map 
+    * HashSet 
+    * LinkedHashSet
+    * HashMap 
+    * LinkedHashMap 
+    * WeakHashMap 
+    * IdentityHashMap 
+    * ConcurrentHashMap 
+
+—> Trees
+* Organize their elements by content 
+    * Store and retrieve them in sorted order 
+* Fast 
+    * inserting
+    * removing 
+    * Accessing them by content and iterating over them 
+* Backing structure for TreeSet, TreeMap 
+
+11.3 Efficiency and the O-Notation 
+* A good algorithm is economical in its use of two resources: time and space.
+* Worst-case execution time for a multiple list insertion sort program 
+    * 3.5N^2 + 24.5N + 4M + 2 
+    * N is the number of elements being sorted 
+    * M is the number of lists.
+* O-notation 
+    * pronounced "big-oh notation”
+    * The O-notation is a way of describing the performance of an algorithm in an abstract way 
+    * Describing how the execution time for an algorithm depends on the size of its data set 
+11.4 Contracts 
+* A contract defines what two parties can expect of each other—their obligations to each other in some transaction 
+* The contract for a class spells out what a client can rely on in using it, 
+
+CHAPTER 12 The Collection Interface
