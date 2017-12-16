@@ -1,0 +1,344 @@
+Item 75: Consider using a custom serialized form
+
+1 - Do not accept the default serialized form without first considering whether it is appropriate.
+2 - The default serialized form is likely to be appropriate if an object’s physical representation is identical to its logical content.
+3 - Even if you decide that the default serialized form is appropriate, you often must provide a readObject method to ensure invariants and security
+4 - Using the default serialized form when an object’s physical representation differs substantially from its logical data content has four disadvantages :
+• It permanently ties the exported API to the current internal representation.
+• It can consume excessive space
+• It can consume excessive time
+• It can cause stack overflows.
+5 - Before deciding to make a field nontransient, convince yourself that its value is part of the logical state of the object.
+6 - you must impose any synchronization on object serialization that you would impose on any other method that reads the entire state of the object
+7 - Regardless of what serialized form you choose, declare an explicit serial version UID in every serializable class you write.
+8 - When an object is deserialized, it is critical to defensively copy any field containing an object reference that a client must not possess.
+9 -
+
+Item 74: Implement Serializable judiciously
+
+1 - A major cost of implementing Serializable is that it decreases the flexibility to change a class’s implementation once it has been released
+2 - When a class implements Serializable, its byte-stream encoding (or serialized form) becomes part of its exported API
+3 - Constraint on evolution of a serialized class is stream unique identifiers (serial version UIDs)
+4 - If you do not specify the serialVersionUID explicitly by declaring a static final long field named serialVersionUID, the system automatically generates it at runtime by applying a complex procedure to the class.
+5 - A second cost of implementing Serializable is that it increases the likelihood of bugs and security holes.
+6 - A third cost of implementing Serializable is that it increases the testing burden associated with releasing a new version of a class.
+7 - Implementing the Serializable interface is not a decision to be undertaken lightly
+8 - Classes designed for inheritance (Item 17) should rarely implement Serializable, and interfaces should rarely extend it
+9 - Classes designed for inheritance that do implement Serializable include Throwable, Component, and HttpServlet.
+10 - Throwable implements Serializable so exceptions from remote method invocation (RMI) can be passed from server to client.
+11 - Component implements Serializable so GUIs can be sent, saved, and restored.
+12 - HttpServlet implements Serializable so session state can be cached
+13 - If you implement a class with instance fields that is serializable and extendable, there is a caution you should be aware of; you must add this readObjectNoData method to the class
+14 - If a class that is designed for inheritance is not serializable, it may be impossible to write a serializable subclass
+15 - you should consider providing a parameterless constructor on nonserializable classes designed for inheritance
+16 - Inner classes (Item 22) should not implement Serializable. 17 - A static member class can, however, implement Serializable.
+
+Item 73: Avoid thread groups
+
+1 - Thread groups were originally envisioned as a mechanism for isolating applets for security purposes
+2 - thread groups are obsolete.
+3 - enumerate : return an array that hold all the active threads in a thread group.
+4 - activeCount method : returns the number of active threads in a thread group
+5 - thread groups are obsolete.
+6 - If you design a class that deals with logical groups of threads, you should probably use thread pool executors
+
+Item 72: Don’t depend on the thread scheduler
+
+1 - When many threads are runnable, the thread scheduler determines which ones get to run, and for how long
+2 - Any program that relies on the thread scheduler for correctness or performance is likely to be nonportable
+3 - Threads should not run if they aren’t doing useful work.
+4 - resist the temptation to “fix” the program by putting in calls to Thread.yield
+5 - Thread.yield has no testable semantics
+6 - Thread priorities are among the least portable features of the Java platform.
+
+Item 71: Use lazy initialization judiciously
+
+1 - Lazy initialization is the act of delaying the initialization of a field until its value is needed. ( If the value is never needed, the field is never initialized)
+2 - applicable to both static and instance fields.
+3 - optimizations : “don’t do it unless you need to”
+4 - Under most circumstances, normal initialization is preferable to lazy initialization
+5 - If you use lazy initialization to break an initialization circularity, use a synchronized accessor
+6 - If you need to use lazy initialization for performance on a static field, use the lazy initialization holder class idiom (also known as the initializeon-demand holder class idiom) exploits the guarantee that a class will not be initialized until it is used [JLS, 12.4.1].
+7 - If you need to use lazy initialization for performance on an instance field, use the double-check idiom.
+8 - Single-check idiom - can cause repeated initialization
+9 - racy single-check idiom.
+10 - For instance fields, it is the double-check idiom
+       for static fields, the lazy initialization holder class idiom.
+       For instance fields that can tolerate repeated initialization, you may also consider the single-check idiom.
+
+Item 70: Document thread safety
+
+1 - The presence of the synchronized modifier in a method declaration is an implementation detail, not a part of its exported API.
+2 - To enable safe concurrent use, a class must clearly document what level of thread safety it supports.
+3 - levels of thread safety :
+- immutable : Instances of this class appear constant. (String, Long)
+- Unconditional thread safe : Instances of this class are mutable, but the class has sufficient internal synchronization that its instances can be used concurrently without the need for any external synchronization. Examples include Random and ConcurrentHashMap.
+- conditional thread safe : Like unconditionally thread-safe, except that some methods require external synchronization for safe concurrent use. Examples include the collections returned by the Collections.synchronized wrappers, whose iterators require external synchronization.
+- Not thread safe : Instances of this class are mutable. To use them concurrently, clients must surround each method invocation (or invocation sequence) with external synchronization of the clients’ choosing. Examples include the general-purpose collection implementations, such as ArrayList and HashMap
+- thread-hostile : This class is not safe for concurrent use even if all method invocations are surrounded by external synchronization. Thread hostility usually results from modifying static data without synchronization. The System.runFinalizersOnExit method is thread-hostile and has been deprecated.
+
+Item 69: Prefer concurrency utilities to wait and notify
+
+1 - Given the difficulty of using wait and notify correctly, you should use the higher-level concurrency utilities instead.
+2 - Synchronizers are objects that enable threads to wait for one another (allowing them to coordinate their activities)
+3 - The most commonly used synchronizers are CountDownLatch and Semaphore. Less commonly used are CyclicBarrier and Exchanger.
+4 - The wait method is used to make a thread wait for some condition.
+5 - notify or notifyAll wake waiting threads.
+6 - notify wakes a single waiting thread, assuming such a thread exists
+7 - notifyAll wakes all waiting threads.
+
+Item 68: Prefer executors and tasks to threads
+
+1 - Thread = unit of work + mechanism
+2 - Task = unit of work
+3 - There are two kinds of tasks: Runnable and its close cousin, Callable (which is like Runnable, except that it returns a value).
+4 - The general mechanism for executing tasks is the executor service
+5 - Executor Framework does for execution what the Collections Framework did for aggregation.
+
+Item 61: Throw exceptions appropriate to the abstraction
+
+1 - higher layers should catch lower-level exceptions and, in their place, throw exceptions that can be explained in terms of the higher-level abstraction.( exception translation idiom)
+Example :
+ try { return i.next(); }
+  catch(NoSuchElementException e) {
+   throw new IndexOutOfBoundsException("Index: " + index);
+   }
+    2 - A special form of exception translation called exception chaining is appropriate in cases where the lower-level exception might be helpful to someone debugging the problem that caused the higher-level exception.
+Example :
+// Exception Chaining
+try { ...
+// Use lower-level abstraction to do our bidding
+} catch (LowerLevelException cause) {
+throw new HigherLevelException(cause);
+}
+3 - While exception translation is superior to mindless propagation of exceptions from lower layers, it should not be overused
+
+Item 60: Favor the use of standard exceptions
+
+1 - One of the attributes that most strongly distinguishes expert programmers from less experienced ones is that experts strive for and usually achieve a high degree of code reuse
+2 - Exceptions are no exception to the general rule that code reuse is good.
+3 - IllegalStateException : thrown if the caller attempted to use some object before it had been properly initialized.
+
+Item 58: Use checked exceptions for recoverable conditions and runtime exceptions for programming errors
+
+1 - use checked exceptions for conditions from which the caller can reasonably be expected to recover
+2 - By throwing a checked exception, you force the caller to handle the exception in a catch clause or to propagate it outward
+3 - There are two kinds of unchecked throwables: runtime exceptions and errors
+4 - Use runtime exceptions to indicate programming errors
+(The great majority of runtime exceptions indicate precondition violations. A precondition violation is simply a failure by the client of an API to adhere to the contract established by the API specification. For example, the contract for array access specifies that the array index must be between zero and the array length minus one. ArrayIndexOutOfBoundsException indicates that this precondition was violated.)
+5 - all of the unchecked throwables you implement should subclass RuntimeException (directly or indirectly).
+6 - It is possible to define a throwable that is not a subclass of Exception, RuntimeException, or Error.
+
+Item 57: Use exceptions only for exceptional conditions
+
+1 - exceptions are, as their name implies, to be used only for exceptional conditions; they should never be used for ordinary control flow.
+2 - A well-designed API must not force its clients to use exceptions for ordinary control flow
+3 - A class with a “state-dependent” method that can be invoked only under certain unpredictable conditions should generally have a separate “state-testing” method indicating whether it is appropriate to invoke the state-dependent method. For example, the Iterator interface has the state-dependent method next and the corresponding state-testing method hasNext.
+
+Item 56: Adhere to generally accepted naming conventions
+
+1 - naming convention : Java Language Specification [JLS, 6.8]
+2 - Methods that convert the type of an object, toType, for example, toString, toArray
+3 - Methods that return a view (Item 5) whose type differs from that of the receiving object are often called asType, for example, asList.
+4 - Methods that return a primitive with the same value as the object on which they’re invoked are often called typeValue, for example, intValue
+5 - Common names for static factories are valueOf, of, getInstance, newInstance, getType, and newTyp
+
+
+Item 55: Optimize judiciously
+
+1 - There are three aphorisms concerning optimization that everyone should know :
+" More computing sins are committed in the name of efficiency (without necessarily achieving it) than for any other single reason—including blind stupidity. —William A. Wulf [Wulf72]"
+" Weshould forget about small efficiencies, say about 97% of the time: premature optimization is the root of all evil. —Donald E. Knuth [Knuth74]"
+" We follow two rules in the matter of optimization: Rule 1. Don’t do it. Rule 2 (for experts only). Don’t do it yet—that is, not until you have a perfectly clear and unoptimized solution. —M. A. Jackson [Jackson75]"
+2 - Strive to write good programs rather than fast ones
+3 - Strive to avoid design decisions that limit performance.
+4 - It is a very bad idea to warp an API to achieve good performance.
+5 - measure performance before and after each attempted optimization
+6 - Common wisdom says that programs spend 80 percent of their time in 20 percent of their code
+
+Item 54: Use native methods judiciously
+
+1 - The Java Native Interface (JNI) allows Java applications to call native methods, which are special methods written in native programming languages such as C or C++.
+2 - Native methods can perform arbitrary computation in native languages before returning to the Java programming language.
+3 - Historically, native methods have had three main uses.
+A) They provided access to platform-specific facilities such as registries and file locks.
+B) They provided access to libraries of legacy code, which could in turn provide access to legacy data.
+C) Finally, native methods were used to write performance-critical parts of applications in native languages for improved performance.
+4 - It is rarely advisable to use native methods for improved performance.
+
+Item 53: Prefer interfaces to reflection
+
+1 - The core reflection facility, java.lang.reflect, offers programmatic access to information about loaded classes.
+2 - As a rule, objects should not be accessed reflectively in normal applications at runtime.
+3 - You can obtain many of the benefits of reflection while incurring few of its costs by using it only in a very limited form
+
+Item 52: Refer to objects by their interfaces
+
+1 - If appropriate interface types exist, then parameters, return values, variables, and fields should all be declared using interface types.
+2 - The only time you really need to refer to an object’s class is when you’re creating it with a constructor
+3 - Good - uses interface as type
+ List<Subscriber> subscribers = new Vector<Subscriber>();
+ 4 - Bad - uses class as type!
+ Vector<Subscriber> subscribers = new Vector<Subscriber>();
+ 5 - If you get into the habit of using interfaces as types, your program will be much more flexible
+ 6 - It is entirely appropriate to refer to an object by a class rather than an interface if no appropriate interface exists
+ 7 - value classes, such as String and BigInteger. Value classes are rarely written with multiple implementations in mind.
+ 8 - If an object belongs to such a class-based framework, it is preferable to refer to it by the relevant base class, which is typically abstract, rather than by its implementation class.
+
+Item 50: Avoid strings where other types are more appropriate
+
+1 - Strings are poor substitutes for other value types.
+2 - Strings are poor substitutes for enum types.
+3 - Strings are poor substitutes for aggregate types.
+4 - Strings are poor substitutes for capabilities.
+
+Item 49: Prefer primitive types to boxed primitives
+
+1 - java type system : primitives, references types, auto boxing/auto unboxing
+2 - auto-unboxed : extracts their primitive values
+3 - first == second, which performs an identity comparison on the two object references.
+4 - Applying the == operator to boxed primitives is almost always wrong.
+5 - all object reference fields, its initial value is null
+6 - when you mix primitives and boxed primitives in a single operation, the boxed primitive is auto-unboxed
+7 - when should you use boxed primitives? They have several legitimate uses.
+A) The first is as elements, keys, and values in collections. You can’t put primitives in collections, so you’re forced to use boxed primitives.
+B) You must use boxed primitives as type parameters in parameterized types (Chapter 5), because the language does not permit you to use primitives.
+C) you must use boxed primitives when making reflective method invocations (Item 53).
+8 - Autoboxing reduces the verbosity, but not the danger, of using boxed primitives.
+
+Item 47: Know and use the libraries
+
+1 - By using a standard library, you take advantage of the knowledge of the experts who wrote it and the experience of those who used it before you.
+2 - Numerous features are added to the libraries in every major release, and it pays to keep abreast of these additions
+3 - every programmer should be familiar with the contents of java.lang, java.util, and, to a lesser extent, java.io
+
+Item 46: Prefer for-each loops to traditional for loops
+
+1 - There are three common situations where you can’t use a for-each loop: Filtering, Transformation, Parallel iteration
+
+Item 45: Minimize the scope of local variables
+
+1 - The most powerful technique for minimizing the scope of a local variable is to declare it where it is first used
+2 - Nearly every local variable declaration should contain an initializer.
+3 - to minimize the scope of local variables is to keep methods small and focused.
+
+Item 44: Write doc comments for all exposed API elements
+
+1 - preconditions
+2 - postconditions
+The doc comment should enumerate all of the method’s preconditions, which are the things that have to be true in order for a client to invoke it, and its postconditions, which are the things that will be true after the invocation has completed successfully
+3 - side effects : A side effect is an observable change in the state of the system that is not obviously required in order to achieve the postcondition. ( Finally, documentation comments should describe the thread safety of a class or method, as discussed in Item 70.)
+
+4 -
+
+Item 43: Return empty arrays or collections, not nulls
+
+1 - zero-length arrays are immutable and immutable objects may be shared freely
+2 -
+
+Item 42: Use varargs judiciously
+
+1 - In release 1.5, varargs methods, formally known as variable arity methods [JLS, 8.4.1], were added to the language.
+2 - Varargs methods accept zero or more arguments of a specified type.
+3 - Varargs were designed for printf, which was added to the platform in release 1.5, and for the core reflection facility (Item 53), which was retrofitted to take advantage of varargs in that release.
+4 - Don’t retrofit every method that has a final array parameter; use varargs only when a call really operates on a variable-length sequence of values.
+5 - compile-time type-checking
+6 - Every invocation of a varargs method causes an array allocation and initialization
+
+Item 41: Use overloading judiciously
+
+1 - Because the classify method is overloaded, and the choice of which overloading to invoke is made at compile time
+2 - selection among overloaded methods is static, while selection among overridden methods is dynamic.
+3 - method is overridden when a subclass contains a method declaration with the same signature as a method declaration in an ancestor.
+4 - Overloading vs Overriding
+5 - runtime type of an object has no effect on which overloading is executed; the selection is made at compile time, based entirely on the compile-time types of the parameters.
+6 - constructors can’t be overridden
+7 - Two distinct classes are said to be unrelated if neither class is a descendant of the other [JLS, 5.5]. For example, String and Throwable are unrelated.
+8 - The rules that determine which overloading is selected are extremely complex. They take up thirty-three pages in the language specification [JLS, 15.12.1-3], and few programmers understand all of their subtleties.
+
+Item 40: Design method signatures carefully
+
+1 - Choose method names carefully
+2 - Avoid long parameter lists.
+3 - Long sequences of identically typed parameters are especially harmful.
+4 - For parameter types, favor interfaces over classes
+5 - Prefer two-element enum types to boolean parameters.
+
+Item 39: Make defensive copies when needed
+
+1 - One thing that makes Java such a pleasure to use is that it is a **safe language**
+2 - This is not possible in languages that treat all of memory as one giant array.
+3 - You must program defensively, with the assumption that clients of your class will do their best to destroy its invariants.
+4 - it is essential to make a defensive copy of each mutable parameter to the constructor
+5 - defensive copies are made before checking the validity of the parameters (Item 38), and the validity check is performed on the copies rather than on the originals
+5 - do not use the clone method to make a defensive copy of a parameter whose type is subclassable by untrusted parties.
+6 - nonzero-length arrays are always mutable => always make a defensive copy of an internal array before returning it to a client
+
+Item 38: Check parameters for validity
+
+1 - index values must be non-negative and object references must be non-null.( checks at the beginning of the method body. )
+
+Item 36: Consistently use the Override annotation
+
+1 - in release 1.5, several annotation types were added to the libraries [JLS, 9.6.1].
+
+Item 35: Prefer annotations to naming patterns
+
+1 - Prior to release 1.5, it was common to use naming patterns to indicate that some program elements demanded special treatment by a tool or framework.
+2 - Annotations [JLS, 9.7]
+3 - Instance method : nonstatic method
+4 - catch (InvocationTargetException wrappedExc) {
+ Throwable exc = wrappedExc.getCause();
+ 
+
+Item 34 :
+
+1 - <T extends Enum<T> & Operation> Class<T>) ensures that the Class object represents both an enum and a subtype of Operation
+2 - bounded wildcard type : Collection<? extends Operation>
+3 - while you cannot write an extensible enum type, you can emulate it by writing an interface to go with a basic enum type that implements the interface
+4 - Class<? extends Exception> : “the Class object for some class that extends Exception,”
+
+Item 31: Use instance fields instead of ordinals
+
+1 - Never derive a value associated with an enum from its ordinal; store it in an instance field instead
+
+Item 30 : Use enums instead of int constants
+
+1 - Enum types with identically named constants coexist peacefully because each type has its own namespace
+2 - translate enums into printable strings by calling their toString method.
+3 - enum types let you add arbitrary methods and fields and implement arbitrary interfaces.
+4- To associate data with enum constants, declare instance fields and write a constructor that takes the data and stores it in the fields.
+5 - Enums are by their nature immutable,
+6 - constant-specific method implementations : a method that specify the constant to use
+7 - Enum constructors aren’t permitted to access the enum’s static fields, except for compile-time constant fields
+8 - The strategy enum pattern
+9 - A minor performance disadvantage of enums over int constants is that there is a space and time cost to load and initialize enum types.
+
+Item 29: Consider typesafe heterogeneous containers
+
+1 - type token : When a class literal is passed among methods to communicate both compile-time and runtime type information
+2 - key can have a different parameterized type
+3 - super type tokens
+4 - unbounded : accept any Class object
+5 - bounded type token : limit the types that can be passed to a method
+6 - bounded type token : bounded type parameter/bounded wildcard
+
+Item 27 - Favor generic methods
+
+1 - Type inference
+exp :
+Map<String, List<String>> anagrams = newHashMap();
+Instead of Map<String, List<String>> anagrams = new HashMap<String, List<String>>();
+2 - Bounded wildcard = flexibility
+3 - <T extends Comparable<T>> : read as “for every type T that can be compared to itself,”
+4 - Parameterized types are invariant
+5 - For maximum flexibility, use wildcard types on input parameters that represent producers or consumers.
+6 - PECS stands for producer-extends , consumer-super. ( the Get and Put Principle)
+7 - Do not use wildcard types as return types.
+8 - always use Comparable<? super T> in preference to Comparable<T>.
+9 - always use Comparator<? super T> in preference to Comparat<T>.
+10 - Type <E>
+11 - Wildcard <?>
+12 - if a type parameter appears only once in a method declaration, replace it with a wildcard
+13 - If it’s an unbounded type parameter, replace it with an unbounded wildcard
+14 - helper method to capture the wildcard type
